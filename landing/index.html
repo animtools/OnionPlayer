@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OnionPlayer — 参考の動きを、線だけにして前後まとめて見る</title>
+<meta name="description" content="OnionPlayer は、動画から線画を抽出し前後のフレームを透過重ね表示（オニオンスキン）する Windows デスクトップアプリ。等間隔に並んだゴーストがそのままスペーシングチャートになり、タメ・ツメの間隔と軌道を画面の上で直接測れます。">
+<meta property="og:title" content="OnionPlayer — 参考の動きを、線だけにして前後まとめて見る">
+<meta property="og:description" content="動画から線画を抽出し、前後フレームを重ねて表示。コマ送りでは記憶に頼るしかなかった間隔と軌道が、画面の上に直接現れます。">
+<meta property="og:type" content="website">
+<!--
+  OnionPlayer ランディングページ（draft）
+  ⚠ 公開ゲート: biz-cycle-hub/playbooks/stages.md
+     - LP の公開は test 段階から可。ただし「配布物が実際に取得できる」との AND 条件がある。
+       OnionPlayer は release-repo が未作成のため、**この時点では公開しない**。
+     - 金額は載せない（¥4,800 は暫定。pricing.md 原則5）。購入ボタンは「準備中」。
+  TODO（公開前）:
+     - {{DOWNLOAD_URL}} を release-repo のリリース資産 URL に差し替える
+     - hero の GIF（assets/hero.gif）を撮影成果物に差し替える
+     - assets/ 配下の各スクリーンショットを撮影成果物に差し替える
+-->
+<style>
+  :root {
+    --ink: #1b2028;
+    --ink-soft: #4a5464;
+    --ink-faint: #8a93a3;
+    --paper: #ffffff;
+    --paper-warm: #f5f7f9;
+    --line: #e2e7ec;
+    --accent: #2b8ea3;          /* 未来のゴースト＝寒色 */
+    --accent-deep: #1d6c7e;
+    --accent-soft: #e8f4f7;
+    --warm: #d1783a;            /* 過去のゴースト＝暖色 */
+    --warm-soft: #fbf0e6;
+    --hero-bg: #14181f;
+    --hero-ink: #eef1f5;
+    --radius: 12px;
+    --shadow: 0 8px 28px rgba(20, 24, 31, .10);
+    --shadow-sm: 0 2px 10px rgba(20, 24, 31, .07);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; color: var(--ink); background: var(--paper);
+    font-family: system-ui, "Segoe UI", "Hiragino Sans", "Noto Sans JP", sans-serif;
+    line-height: 1.85; font-size: 16px;
+  }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 24px; }
+  h1, h2, h3 { line-height: 1.4; letter-spacing: .01em; }
+  h2 { font-size: 1.55rem; margin: 0 0 12px; }
+  h3 { font-size: 1.05rem; margin: 0 0 6px; }
+  p { margin: 0 0 16px; }
+  section { padding: 72px 0; border-bottom: 1px solid var(--line); }
+  section.alt { background: var(--paper-warm); }
+  .lead { color: var(--ink-soft); font-size: 1.05rem; max-width: 62ch; }
+  img { max-width: 100%; height: auto; display: block; }
+  figure { margin: 0; }
+  figcaption { font-size: .85rem; color: var(--ink-faint); margin-top: 8px; }
+  .shot { border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm); background: var(--hero-bg); }
+
+  /* hero */
+  .hero { background: var(--hero-bg); color: var(--hero-ink); border-bottom: none; padding: 84px 0 72px; }
+  .hero h1 { font-size: 2.4rem; margin: 0 0 18px; letter-spacing: .02em; }
+  .hero .tagline { color: #b9c2cf; font-size: 1.12rem; max-width: 60ch; margin-bottom: 28px; }
+  .hero .shot { border-color: #2a313c; box-shadow: 0 18px 50px rgba(0,0,0,.45); }
+  .hero-meta { margin-top: 22px; color: #8f99a8; font-size: .88rem; }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: .78rem;
+           background: rgba(43,142,163,.18); color: #7fd3e4; border: 1px solid rgba(43,142,163,.4); }
+
+  /* CTA */
+  .cta { display: inline-block; padding: 14px 30px; border-radius: 10px; font-weight: 700;
+         text-decoration: none; background: var(--accent); color: #fff; box-shadow: var(--shadow-sm); }
+  .cta:hover { background: var(--accent-deep); }
+  .cta.pending { background: #39414c; color: #9aa5b3; cursor: default; box-shadow: none; }
+  .cta.ghost { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+  .cta-row { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; }
+  .cta-note { color: #8f99a8; font-size: .85rem; }
+
+  /* grids */
+  .grid { display: grid; gap: 24px; }
+  .grid.two { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+  .grid.three { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+  .card { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; }
+  .card p:last-child { margin-bottom: 0; }
+  .card .k { font-size: .78rem; color: var(--accent-deep); font-weight: 700; letter-spacing: .08em; }
+
+  /* steps */
+  .steps { counter-reset: step; display: grid; gap: 28px; }
+  .step { display: grid; grid-template-columns: 46px 1fr; gap: 18px; align-items: start; }
+  .step::before { counter-increment: step; content: counter(step);
+    width: 40px; height: 40px; border-radius: 50%; background: var(--accent-soft); color: var(--accent-deep);
+    display: grid; place-items: center; font-weight: 700; }
+
+  /* compare */
+  .compare { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; }
+  .compare .label { font-size: .8rem; font-weight: 700; color: var(--ink-soft); margin-bottom: 8px; }
+
+  /* table */
+  table { border-collapse: collapse; width: 100%; font-size: .95rem; }
+  th, td { text-align: left; padding: 12px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--ink-soft); font-weight: 700; white-space: nowrap; }
+  .free { color: var(--accent-deep); font-weight: 700; }
+  .pro { color: var(--warm); font-weight: 700; }
+
+  /* faq */
+  .faq details { border-bottom: 1px solid var(--line); padding: 16px 0; }
+  .faq summary { cursor: pointer; font-weight: 700; }
+  .faq p { margin: 10px 0 0; color: var(--ink-soft); }
+
+  footer { padding: 44px 0 64px; color: var(--ink-faint); font-size: .85rem; }
+  footer a { color: var(--ink-soft); }
+  .note { background: var(--warm-soft); border-left: 3px solid var(--warm); padding: 14px 18px;
+          border-radius: 0 8px 8px 0; color: var(--ink-soft); font-size: .93rem; }
+  @media (max-width: 640px) {
+    .hero h1 { font-size: 1.8rem; }
+    section { padding: 52px 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════ hero ══════════ -->
+<header class="hero">
+  <div class="wrap">
+    <span class="badge">β版 / v0.1.0</span>
+    <h1>参考の動きを、線だけにして<br>前後まとめて見る。</h1>
+    <p class="tagline">
+      動画から線画を抽出し、前後のフレームを重ねて表示する Windows アプリ。
+      コマ送りでは記憶に頼るしかなかった<strong>間隔と軌道が、画面の上に直接現れます</strong>。
+    </p>
+    <figure class="shot">
+      <!-- FILL: 撮影成果物 40_onion_hero の GIF -->
+      <img src="assets/hero.gif" alt="歩行の映像に前後のフレームが等間隔のゴーストとして重なり、スペーシングチャートのように見えている画面">
+    </figure>
+    <div class="hero-meta">
+      <div class="cta-row" style="margin-bottom:10px">
+        <!-- FILL: {{DOWNLOAD_URL}}。release-repo のリリース資産が公開されるまでは準備中のまま -->
+        <span class="cta pending">ダウンロード（準備中）</span>
+        <span class="cta-note">Windows 10 / 11 x64 ・ インストール不要のポータブル版</span>
+      </div>
+      オニオンスキンの全機能・シェーダ抽出・静止部の除去・方眼は無料で使えます。
+    </div>
+  </div>
+</header>
+
+<!-- ══════════ problem ══════════ -->
+<section>
+  <div class="wrap">
+    <h2>コマ送りしても、見えるのは「今の1コマ」だけ。</h2>
+    <p class="lead">
+      動きを研究したくて動画プレイヤーでコマ送りをしても、画面に出るのは常に現在のフレームだけです。
+      1つ前のコマがどこにあったかは記憶に頼るしかなく、<strong>タメ・ツメの間隔も、軌道の曲がり方も、
+      目で測ることができません</strong>。前後を往復して確かめているうちに、
+      最初に見たかった差がぼやけていきます。
+    </p>
+    <p class="lead">
+      OnionPlayer は前後のコマを<strong>同時に</strong>出します。
+      等間隔でゴーストを並べれば、それがそのままスペーシングチャートになります。
+      比べるという作業が、1枚の絵を読む作業に変わります。
+    </p>
+  </div>
+</section>
+
+<!-- ══════════ workflow ══════════ -->
+<section class="alt" id="workflow">
+  <div class="wrap">
+    <h2>使い方は3ステップ</h2>
+    <div class="steps">
+      <div class="step">
+        <div>
+          <h3>動画を開く</h3>
+          <p class="lead">ウィンドウにドラッグ＆ドロップするか <code>Ctrl+O</code>。
+             対応形式は mp4 と webm です。</p>
+        </div>
+      </div>
+      <div class="step">
+        <div>
+          <h3>線にする</h3>
+          <p class="lead">右パネルで抽出方式を選びます。
+             <strong>シェーダ抽出は追加導入なしで、開いた直後から動きます。</strong>
+             実写なら <code>Live Action</code>、アニメなら <code>Anime</code> のプリセットから。</p>
+          <figure class="shot" style="margin-top:14px">
+            <!-- FILL: 撮影成果物 30_shader_extract -->
+            <img src="assets/30_shader_extract.png" alt="実写の映像がシェーダ抽出によって線画になっている画面">
+          </figure>
+        </div>
+      </div>
+      <div class="step">
+        <div>
+          <h3>前後を重ねる</h3>
+          <p class="lead"><code>N</code> キーでオニオンスキンが入ります。
+             目的に合わせて <strong>中割り / 軌道 / スペーシング / 広域</strong> のプリセットを選ぶだけです。
+             過去は暖色、未来は寒色に色分けされます。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ features ══════════ -->
+<section id="features">
+  <div class="wrap">
+    <h2>できること</h2>
+    <div class="grid three" style="margin-bottom:36px">
+      <div class="card">
+        <div class="k">ONION SKIN</div>
+        <h3>層を自在に組む</h3>
+        <p class="lead">前後それぞれ最大8層、層と層の間隔は1〜12コマ。
+           層ごとの濃さはイコライザで個別に上書きでき、遠い層の減衰も調整できます。</p>
+      </div>
+      <div class="card">
+        <div class="k">KEYFRAME</div>
+        <h3>原画を打って、その間を見る</h3>
+        <p class="lead"><code>A</code> でキーフレームを打ち、それを基準にゴーストを張れます。
+           「1層＝次のキーフレームまで」に切り替えれば、原画と原画の間を読めます。</p>
+      </div>
+      <div class="card">
+        <div class="k">FLIP</div>
+        <h3>めくる・パラパラ送る</h3>
+        <p class="lead"><code>1</code>〜<code>9</code> を押している間だけその層を濃く表示。
+           <code>F</code> で自動送り。紙をめくって見比べる動作を、そのままキーにしています。</p>
+      </div>
+      <div class="card">
+        <div class="k">STATIC REMOVAL</div>
+        <h3>動かない背景の線を落とす</h3>
+        <p class="lead">背景モデルを作り、動いていない部分の線を消します。
+           背景のディテールに埋もれず、<strong>動いたものの線だけ</strong>が残ります。</p>
+      </div>
+      <div class="card">
+        <div class="k">LAYOUT</div>
+        <h3>重ねる・並べる・格子に置く</h3>
+        <p class="lead">元動画と並べた2ペイン表示。オニオン側はリストや格子にも展開でき、
+           <strong>タイムシートのように読めます</strong>。方眼も重ねられます。</p>
+      </div>
+      <div class="card">
+        <div class="k">EXPORT</div>
+        <h3>作画の下敷きとして出す</h3>
+        <p class="lead">重ねた1枚・並べたシート・層ごとの複数ファイルの3形式。
+           透過背景と方眼の焼き込みを選べ、素材の解像度で出力します。</p>
+      </div>
+    </div>
+
+    <h3 style="margin-bottom:14px">静止部の除去 — 背景の線が消え、動きだけが残る</h3>
+    <div class="compare">
+      <figure>
+        <div class="label">OFF — 背景の線も出ている</div>
+        <div class="shot"><!-- FILL: 140_static_off -->
+          <img src="assets/140_static_off.png" alt="静止部の除去がオフで、背景のディテールまで線として出ている画面"></div>
+      </figure>
+      <figure>
+        <div class="label">ON — 動いた部分の線だけが残る</div>
+        <div class="shot"><!-- FILL: 141_static_on -->
+          <img src="assets/141_static_on.png" alt="静止部の除去がオンになり、動いている被写体の線だけが残っている画面"></div>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ trust ══════════ -->
+<section class="alt" id="trust">
+  <div class="wrap">
+    <h2>道具としての作り</h2>
+    <div class="grid two">
+      <div class="card">
+        <h3>インストール不要・持ち運べる</h3>
+        <p class="lead">ポータブル版は展開してそのまま実行します。
+           設定・キーフレーム・導入したモデルは <strong>exe の隣の <code>OnionPlayerData</code></strong> に入り、
+           Windows のユーザーフォルダは汚しません。フォルダごと移せば全部付いてきます。</p>
+      </div>
+      <div class="card">
+        <h3>キーボードで完結する</h3>
+        <p class="lead">再生・移動・オニオン・めくり・表示・抽出・書き出しまで、
+           操作は体系立ててキーに割り当てられています。<code>F1</code> でいつでも一覧が開きます。</p>
+      </div>
+      <div class="card">
+        <h3>コマ送りが正確</h3>
+        <p class="lead">移動は映像の実タイムスタンプを基準にしているため、
+           可変フレームレートの素材でも1コマずつ厳密に進みます。
+           コマ送りと秒送りは別のキーに分けてあります。</p>
+      </div>
+      <div class="card">
+        <h3>使っているモデルを明示する</h3>
+        <p class="lead">ML 抽出に使うモデルはすべて MIT ライセンスで、
+           帰属表示をアプリ内と配布物の両方に記載しています。
+           何で線を起こしているかを隠しません。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ audience ══════════ -->
+<section>
+  <div class="wrap">
+    <h2>こんなときに</h2>
+    <div class="grid three">
+      <div class="card">
+        <h3>作画の参考を読む</h3>
+        <p class="lead">実写の歩き・走り・アクションから、接地のタイミングと重心の移動を測る。</p>
+      </div>
+      <div class="card">
+        <h3>自分の動画をチェックする</h3>
+        <p class="lead">書き出した動画を読み込み、中割りの間隔が揃っているかをゴーストで確認する。</p>
+      </div>
+      <div class="card">
+        <h3>説明の材料をつくる</h3>
+        <p class="lead">層ごとに書き出して並べ、動きの意図を伝える資料の下敷きにする。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ pricing（金額は載せない。stages.md の launch ゲート） ══════════ -->
+<section class="alt" id="pricing">
+  <div class="wrap">
+    <h2>無料でできること / Pro でできること</h2>
+    <p class="lead"><strong>このアプリの中心機能は無料側にあります。</strong>
+       オニオンスキンは全機能が無料です。</p>
+    <table>
+      <tr><th>再生・トランスポート・区間ループ</th><td class="free">無料</td></tr>
+      <tr><th>シェーダ抽出（Sobel / DoG / XDoG）</th><td class="free">無料</td></tr>
+      <tr><th>オニオンスキン全機能<br><span style="font-weight:400;color:var(--ink-faint)">層数・間隔・イコライザ・レイアウト・プリセット・キーフレーム・めくり・パラパラ</span></th><td class="free">無料</td></tr>
+      <tr><th>静止部の除去 / 方眼 / 重ねる・並べる / 集中モード</th><td class="free">無料</td></tr>
+      <tr><th>ML 抽出（Lineart）</th><td class="pro">Pro</td></tr>
+      <tr><th>書き出し（保存・コピー・層ごと）</th><td class="pro">Pro</td></tr>
+    </table>
+    <div class="note" style="margin-top:24px">
+      <strong>現在クローズドテスト中です。</strong>
+      価格はテストのフィードバックを踏まえて確定するため、まだ掲載していません。
+      購入導線の準備ができ次第、このページでお知らせします。
+    </div>
+    <div class="cta-row" style="margin-top:22px">
+      <!-- 安定ドア。出荷済みビルドがこの URL を参照するため、パスを変えない -->
+      <a class="cta ghost" href="buy/perpetual.html">買い切りについて</a>
+      <a class="cta ghost" href="buy/subscribe.html">サブスク（All-Access）について</a>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ faq ══════════ -->
+<section class="faq" id="faq">
+  <div class="wrap">
+    <h2>よくある質問</h2>
+
+    <details open>
+      <summary>どの動画形式が使えますか？</summary>
+      <p><strong>mp4 と webm です。</strong> MOV / ProRes / MKV や連番画像には対応していません。
+         別形式の素材は、事前に mp4 か webm へ変換してお使いください。</p>
+    </details>
+
+    <details>
+      <summary>ML 抽出のモデルは同梱されていますか？</summary>
+      <p>いいえ。配布物を軽く保つため同梱していません。
+         アプリ内の <code>導入 (~17MB)</code> ボタンから取得すると、
+         ハッシュ検証を経て <code>OnionPlayerData/models/</code> に配置されます。
+         <strong>導入そのものは無料で通ります</strong>（Pro が要るのは抽出の実行です）。</p>
+    </details>
+
+    <details>
+      <summary>静止部の除去が効きません。</summary>
+      <p><strong>カメラが動いている素材では効きません。</strong>
+         背景も「動いたもの」と判定されるためです。この機能はカメラが固定された素材を前提にしています。</p>
+    </details>
+
+    <details>
+      <summary>GPU がなくても動きますか？</summary>
+      <p>動きます。シェーダ抽出は WebGL で動くため GPU の要件は緩く、
+         ML 抽出は DirectML 非対応の環境では自動的に CPU にフォールバックします
+         （その分は遅くなります）。</p>
+    </details>
+
+    <details>
+      <summary>別の PC へ移せますか？</summary>
+      <p>フォルダごとコピーすれば、設定・キーフレーム・導入したモデルは付いてきます。
+         <strong>ライセンスだけは付いてきません</strong>（Windows の資格情報として保存されるため）。
+         移した先で認証し直してください。</p>
+    </details>
+
+    <details>
+      <summary>設定はどこに保存されますか？</summary>
+      <p><code>OnionPlayer.exe</code> と同じ場所に作られる <code>OnionPlayerData</code> フォルダです。
+         Windows のユーザーフォルダには書き込みません。
+         書き込みできない場所に置いた場合も、観る機能はそのまま使えます（設定が保存されないだけで、
+         そのことは画面に表示されます）。</p>
+    </details>
+  </div>
+</section>
+
+<!-- ══════════ final CTA ══════════ -->
+<section class="alt">
+  <div class="wrap" style="text-align:center">
+    <h2>まず、手元の参考動画を1本開いてみてください。</h2>
+    <p class="lead" style="margin:0 auto 26px">
+      オニオンスキンは全機能が無料です。線が重なった瞬間に、
+      この道具が何をするものかが分かります。
+    </p>
+    <div class="cta-row" style="justify-content:center">
+      <!-- FILL: {{DOWNLOAD_URL}} -->
+      <span class="cta pending">ダウンロード（準備中）</span>
+    </div>
+    <p class="cta-note" style="margin-top:14px;color:var(--ink-faint)">
+      Windows 10 / 11 x64 ・ インストール不要 ・ β版
+    </p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p><strong>OnionPlayer</strong> — 動画から線画を抽出し、オニオンスキンで動きを研究できるプレイヤー。</p>
+    <p>
+      ML 抽出に使用するモデル: Informative Drawings（Copyright © 2022 Caroline Chan, MIT License）/
+      Anime2Sketch（Copyright © 2021 Xiaoyu Xiang, MIT License）
+    </p>
+    <p>β版です。将来、一部機能（ML 抽出・書き出し）は有料になる予定です。</p>
+  </div>
+</footer>
+
+</body>
+</html>
