@@ -25,8 +25,9 @@ BUNDLED_LANDING_PUBLIC_ORIGIN=https://animtools.github.io/<repo>/landing
 ## 未完了（launch 前の作業）
 
 1. リリースリポを作成し、この `landing/` を配置して GitHub Pages を有効にする
-2. `.env` の `BUNDLED_LANDING_PUBLIC_ORIGIN` / `BUNDLED_LICENSE_PURCHASE_URL` /
-   `BUNDLED_LICENSE_PURCHASE_URL_PERPETUAL` を埋めて**再ビルド**する
+2. `.env` の `BUNDLED_LANDING_PUBLIC_ORIGIN` **だけ**を埋めて**再ビルド**する
+   （origin があれば `BUNDLED_LICENSE_PURCHASE_URL*` は無視される実装。
+   **生の Polar URL は焼かない** — 焼くと価格改定のたびに配布済みビルドの導線が死ぬ）
 3. 再ビルド後、**課金ゲートのダイアログを撮り直す**
    （現ビルドは購入 URL が空のため「（購入 URL は未設定です）」が出る。
    record-for-ai 票02 の「撮り直しが必要になるショット」を参照）
