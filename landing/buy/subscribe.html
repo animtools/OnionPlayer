@@ -10,8 +10,8 @@
     **出荷済みビルドがこの URL を参照するため、パスを変えない・削除しない。**
     アプリ側は .env の BUNDLED_LANDING_PUBLIC_ORIGIN を基点に {ORIGIN}/buy/subscribe.html を開く。
 
-    束（All-Access）の価格掲載・購入導線は、束が解錠する製品のうち launch が1本以上あり、
-    かつその配布物が実際に取得できることが条件（stages.md / ADR 0003）。
+    束（All-Access）の価格掲載・購入導線は、束が解錠する製品のうち公開済みが1本以上あり、
+    かつその配布物が実際に取得できることが条件。
     OnionPlayer は test 段階のため、ここでは案内に留める。
 
     条件を満たしたら、下の checkout URL への meta refresh + location.replace に戻す:
