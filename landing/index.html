@@ -12,9 +12,9 @@
   OnionPlayer ランディングページ
   - 現在 test 段階。**金額は載せない**（購入ボタンは「準備中」）。
     **暫定額もここに書かない** — コメントでも公開ファイルなのでソースから読める。
-  TODO（公開前）:
-     - {{DOWNLOAD_URL}} をリリース資産の URL に差し替える
   済み（2026-08-24）: hero の GIF と assets/ のスクリーンショットは撮影成果物へ差し替え済み。
+  済み（2026-08-25）: ダウンロードボタンは v0.1.0 のリリース資産へ接続済み。
+    バージョンを上げたら、この2箇所の href（hero と末尾 CTA）も更新すること。
 -->
 <style>
   :root {
@@ -130,9 +130,9 @@
     </figure>
     <div class="hero-meta">
       <div class="cta-row" style="margin-bottom:10px">
-        <!-- FILL: {{DOWNLOAD_URL}}。release-repo のリリース資産が公開されるまでは準備中のまま -->
-        <span class="cta pending">ダウンロード（準備中）</span>
-        <span class="cta-note">Windows 10 / 11 x64 ・ インストール不要のポータブル版</span>
+        <a class="cta" href="https://github.com/animtools/OnionPlayer/releases/download/v0.1.0/OnionPlayer-v0.1.0-portable-x64.zip">ダウンロード（v0.1.0 β）</a>
+        <span class="cta-note">Windows 10 / 11 x64 ・ インストール不要のポータブル版 ・
+          <a href="https://github.com/animtools/OnionPlayer/releases/tag/v0.1.0">リリースノート</a></span>
       </div>
       オニオンスキンの全機能・シェーダ抽出・静止部の除去・方眼は無料で使えます。
     </div>
@@ -390,8 +390,7 @@
       この道具が何をするものかが分かります。
     </p>
     <div class="cta-row" style="justify-content:center">
-      <!-- FILL: {{DOWNLOAD_URL}} -->
-      <span class="cta pending">ダウンロード（準備中）</span>
+      <a class="cta" href="https://github.com/animtools/OnionPlayer/releases/download/v0.1.0/OnionPlayer-v0.1.0-portable-x64.zip">ダウンロード（v0.1.0 β）</a>
     </div>
     <p class="cta-note" style="margin-top:14px;color:var(--ink-faint)">
       Windows 10 / 11 x64 ・ インストール不要 ・ β版
