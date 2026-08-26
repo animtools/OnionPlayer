@@ -30,7 +30,7 @@
 ## ダウンロード
 
 [Releases](https://github.com/animtools/OnionPlayer/releases) から最新の
-**OnionPlayer-v0.1.0-portable-x64.zip** を取得し、好きな場所に解凍して
+**OnionPlayer-v0.1.1-portable-x64.zip** を取得し、好きな場所に解凍して
 `OnionPlayer.exe` を起動してください。インストール不要です。
 
 - **ポータブル**：設定・キーフレーム・ML モデルは exe と同じフォルダの
