@@ -3,20 +3,24 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>OnionPlayer — All-Access 準備中</title>
+  <title>OnionPlayer — All-Access のお申し込みへ</title>
   <meta name="robots" content="noindex">
   <!--
     安定購入ドア（All-Access サブスク）。
     **出荷済みビルドがこの URL を参照するため、パスを変えない・削除しない。**
     アプリ側は .env の BUNDLED_LANDING_PUBLIC_ORIGIN を基点に {ORIGIN}/buy/subscribe.html を開く。
 
-    束（All-Access）の価格掲載・購入導線は、束が解錠する製品のうち公開済みが1本以上あり、
-    かつその配布物が実際に取得できることが条件。
-    OnionPlayer は test 段階のため、ここでは案内に留める。
+    2026-08-26 に受付を開いた。転送先の checkout は月額・年額の両方を選べる1本。
+    価格や商品構成を変えるときは **この行の URL だけ**を差し替える —
+    配布済みビルドはこのドアしか知らないので、アプリの再ビルドは要らない。
 
-    条件を満たしたら、下の checkout URL への meta refresh + location.replace に戻す:
-      TODO: All-Access の checkout URL をここに記録する
+      checkout: https://buy.polar.sh/polar_cl_DYZaJeRQkGuFblfEgOgKV08VCLCsUVaXKICFZ3qmcly
+
+    受付を閉じるときは meta refresh と location.replace を外し、案内文へ戻す
+    （このファイルを消さないこと）。
   -->
+  <meta http-equiv="refresh" content="0; url=https://buy.polar.sh/polar_cl_DYZaJeRQkGuFblfEgOgKV08VCLCsUVaXKICFZ3qmcly">
+  <link rel="canonical" href="https://buy.polar.sh/polar_cl_DYZaJeRQkGuFblfEgOgKV08VCLCsUVaXKICFZ3qmcly">
   <style>
     body { margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
            background:#14181f; color:#eef1f5;
@@ -31,11 +35,11 @@
 </head>
 <body>
   <div class="box">
-    <h1>All-Access は準備中です</h1>
-    <p>スイートの全アプリが使えるサブスクプランです。現在は提供開始前のため、お申し込みを受け付けていません。</p>
-    <p>OnionPlayer は β版として公開中です。オニオンスキンの全機能・シェーダ抽出・静止部の除去・方眼は、ライセンスなしでお使いいただけます。</p>
-    <a class="cta" href="../#pricing">無料でできることを見る</a>
+    <h1>お申し込みページへ移動します</h1>
+    <p>自動で移動しない場合は、下のボタンを押してください。</p>
+    <a class="cta" href="https://buy.polar.sh/polar_cl_DYZaJeRQkGuFblfEgOgKV08VCLCsUVaXKICFZ3qmcly">All-Access のお申し込みへ</a>
     <p style="margin-top:24px"><a href="../">OnionPlayer トップへ戻る</a></p>
   </div>
+  <script>location.replace("https://buy.polar.sh/polar_cl_DYZaJeRQkGuFblfEgOgKV08VCLCsUVaXKICFZ3qmcly");</script>
 </body>
 </html>
